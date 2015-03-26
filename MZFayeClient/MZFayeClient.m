@@ -185,12 +185,17 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
                                           MZFayeClientBayeuxConnectionTypeIFrame,
                                           MZFayeClientBayeuxConnectionTypeWebSocket];
 
-    NSDictionary *message = @{MZFayeClientBayeuxMessageChannelKey : MZFayeClientBayeuxChannelHandshake,
+    NSMutableDictionary *message = [@{MZFayeClientBayeuxMessageChannelKey : MZFayeClientBayeuxChannelHandshake,
                               MZFayeClientBayeuxMessageVersionKey : MZFayeClientBayeuxVersion,
                               MZFayeClientBayeuxMessageMinimuVersionKey : MZFayeClientBayeuxMinimumVersion,
                               MZFayeClientBayeuxMessageSupportedConnectionTypesKey : supportedConnectionTypes
-                              };
+                              } mutableCopy];
 
+    NSDictionary *extension = self.channelExtensions[MZFayeClientBayeuxChannelHandshake];
+    if (extension) {
+        [message setObject:extension forKey:MZFayeClientBayeuxMessageExtensionKey];
+    }
+    
     [self writeMessageToWebSocket:message];
 }
 
@@ -202,11 +207,16 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
  */
 - (void)sendBayeuxConnectMessage
 {
-    NSDictionary *message = @{MZFayeClientBayeuxMessageChannelKey : MZFayeClientBayeuxChannelConnect,
+    NSMutableDictionary *message = [@{MZFayeClientBayeuxMessageChannelKey : MZFayeClientBayeuxChannelConnect,
                               MZFayeClientBayeuxMessageClientIdKey : self.clientId,
                               MZFayeClientBayeuxMessageConnectionTypeKey : MZFayeClientBayeuxConnectionTypeWebSocket
-                              };
+                              } mutableCopy];
 
+    NSDictionary *extension = self.channelExtensions[MZFayeClientBayeuxChannelConnect];
+    if (extension) {
+        [message setObject:extension forKey:MZFayeClientBayeuxMessageExtensionKey];
+    }
+    
     [self writeMessageToWebSocket:message];
 }
 
@@ -217,10 +227,15 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
  */
 - (void)sendBayeuxDisconnectMessage
 {
-    NSDictionary *message = @{MZFayeClientBayeuxMessageChannelKey : MZFayeClientBayeuxChannelDisconnect,
+    NSMutableDictionary *message = [@{MZFayeClientBayeuxMessageChannelKey : MZFayeClientBayeuxChannelDisconnect,
                               MZFayeClientBayeuxMessageClientIdKey : self.clientId
-                              };
+                              } mutableCopy];
 
+    NSDictionary *extension = self.channelExtensions[MZFayeClientBayeuxChannelDisconnect];
+    if (extension) {
+        [message setObject:extension forKey:MZFayeClientBayeuxMessageExtensionKey];
+    }
+    
     [self writeMessageToWebSocket:message];
 }
 
@@ -238,7 +253,7 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
                                       MZFayeClientBayeuxMessageSubscriptionKey : channel
                                       } mutableCopy];
 
-    NSDictionary *extension = self.channelExtensions[channel];
+    NSDictionary *extension = self.channelExtensions[MZFayeClientBayeuxChannelSubscribe];
     if (extension) {
         [message setObject:extension forKey:MZFayeClientBayeuxMessageExtensionKey];
     }
@@ -256,12 +271,17 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
  */
 - (void)sendBayeuxUnsubscribeMessageWithChannel:(NSString *)channel
 {
-    NSDictionary *message = @{
+    NSMutableDictionary *message = [@{
                               MZFayeClientBayeuxMessageChannelKey : MZFayeClientBayeuxChannelUnsubscribe,
                               MZFayeClientBayeuxMessageClientIdKey : self.clientId,
                               MZFayeClientBayeuxMessageSubscriptionKey : channel
-                              };
+                              }mutableCopy];
 
+    NSDictionary *extension = self.channelExtensions[MZFayeClientBayeuxChannelUnsubscribe];
+    if (extension) {
+        [message setObject:extension forKey:MZFayeClientBayeuxMessageExtensionKey];
+    }
+    
     [self writeMessageToWebSocket:message];
 }
 
@@ -564,7 +584,7 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
 
         } else if ([self.openChannelSubscriptions containsObject:fayeMessage.channel]) {
 
-            if ([fayeMessage.successful boolValue]) {
+
                 if (self.subscribedChannels[fayeMessage.channel] &&
                     self.subscribedChannels[fayeMessage.channel] != [NSNull null]) {
                     
@@ -572,12 +592,12 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
                     handler(fayeMessage.data);
                     
                 } else if ([self.delegate respondsToSelector:@selector(fayeClient:didReceiveMessage:fromChannel:)]) {
+                    
                         [self.delegate fayeClient:self didReceiveMessage:fayeMessage.data fromChannel:fayeMessage.channel];
+                    
                 }
 
-            }else {
-                [self didFailWithMessage:[NSString stringWithFormat:@"Faye client received a message on channel %@ containing an error. %@",fayeMessage.channel, fayeMessage.error]];
-            }
+            
             
             
         } else {
