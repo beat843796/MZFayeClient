@@ -576,7 +576,7 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
                 }
 
             }else {
-                [self didFailWithMessage:[NSString stringWithFormat:@"Faye client received a message on channel %@ containing an error. %@",fayeMessage.subscription, fayeMessage.error]];
+                [self didFailWithMessage:[NSString stringWithFormat:@"Faye client received a message on channel %@ containing an error. %@",fayeMessage.channel, fayeMessage.error]];
             }
             
             
