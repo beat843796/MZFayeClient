@@ -1,15 +1,15 @@
 Pod::Spec.new do |s|
-  s.name         = "MZFayeClient"
+  s.name         = "MZFayeClientExtended"
   s.version      = "1.0.0"
-  s.summary      = "Faye Client for iOS. Supports subscription blocks."
+  s.summary      = "Faye Client for iOS. Supports subscription blocks and error handling for received messages"
 
-  s.homepage     = "https://github.com/m1entus/MZFayeClient"
+  s.homepage     = "https://github.com/beat843796/MZFayeClient"
 
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
 
-  s.author       = { "Michał Zaborowski" => "m1entus@gmail.com" }
+  s.author       = { "Clemens Beat" => "beat84@me.com" }
 
-  s.source       = { :git => "https://github.com/m1entus/MZFayeClient.git", :tag => "1.0.0" }
+  s.source       = { :git => "https://github.com/beat843796/MZFayeClient.git", :tag => "1.0.0" }
   
   s.source_files = 'MZFayeClient/*.{h,m}'
   
