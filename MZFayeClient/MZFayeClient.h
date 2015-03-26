@@ -26,7 +26,8 @@
 #import <Foundation/Foundation.h>
 #import <SRWebSocket.h>
 
-@class MZFayeClient;
+
+@class MZFayeClient, MZFayeMessage;
 
 extern NSString *const MZFayeClientBayeuxChannelHandshake;
 extern NSString *const MZFayeClientBayeuxChannelConnect;

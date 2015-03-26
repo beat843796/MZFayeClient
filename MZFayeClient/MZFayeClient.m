@@ -311,7 +311,7 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
 {
     self.sentMessageCount++;
 
-    return [[NSString stringWithFormat:@"%d",self.sentMessageCount] base64String];
+    return [[NSString stringWithFormat:@"%ld",(long)self.sentMessageCount] base64String];
 }
 
 #pragma mark - Public methods
@@ -553,30 +553,33 @@ NSInteger const MZFayeClientDefaultMaximumAttempts = 5;
         } else if ([fayeMessage.channel isEqualToString:MZFayeClientBayeuxChannelUnsubscribe]) {
 
             if ([fayeMessage.successful boolValue]) {
-                
-                [self.subscribedChannels removeObjectForKey:fayeMessage.subscription];
-                [self.pendingChannelSubscriptions removeObject:fayeMessage.subscription];
                 [self.openChannelSubscriptions removeObject:fayeMessage.subscription];
 
                 if ([self.delegate respondsToSelector:@selector(fayeClient:didUnsubscribeFromChannel:)]) {
                     [self.delegate fayeClient:self didUnsubscribeFromChannel:fayeMessage.subscription];
                 }
-
             } else {
                 [self didFailWithMessage:[NSString stringWithFormat:@"Faye client couldn't unsubscribe channel %@ with server. %@",fayeMessage.subscription, fayeMessage.error]];
             }
 
         } else if ([self.openChannelSubscriptions containsObject:fayeMessage.channel]) {
 
-            if (self.subscribedChannels[fayeMessage.channel] &&
-                self.subscribedChannels[fayeMessage.channel] != [NSNull null]) {
+            if ([fayeMessage.successful boolValue]) {
+                if (self.subscribedChannels[fayeMessage.channel] &&
+                    self.subscribedChannels[fayeMessage.channel] != [NSNull null]) {
+                    
+                    MZFayeClientSubscriptionHandler handler = self.subscribedChannels[fayeMessage.channel];
+                    handler(fayeMessage.data);
+                    
+                } else if ([self.delegate respondsToSelector:@selector(fayeClient:didReceiveMessage:fromChannel:)]) {
+                        [self.delegate fayeClient:self didReceiveMessage:fayeMessage.data fromChannel:fayeMessage.channel];
+                }
 
-                MZFayeClientSubscriptionHandler handler = self.subscribedChannels[fayeMessage.channel];
-                handler(fayeMessage.data);
-
-            } else if ([self.delegate respondsToSelector:@selector(fayeClient:didReceiveMessage:fromChannel:)]) {
-                [self.delegate fayeClient:self didReceiveMessage:fayeMessage.data fromChannel:fayeMessage.channel];
+            }else {
+                [self didFailWithMessage:[NSString stringWithFormat:@"Faye client received a message on channel %@ containing an error. %@",fayeMessage.subscription, fayeMessage.error]];
             }
+            
+            
         } else {
             // No match for channel
         }
