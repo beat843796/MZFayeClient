@@ -24,7 +24,7 @@
 //  THE SOFTWARE.
 
 #import <Foundation/Foundation.h>
-#import <SRWebSocket.h>
+#import "SRWebSocket.h"
 
 
 @class MZFayeClient, MZFayeMessage;
