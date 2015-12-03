@@ -25,7 +25,7 @@
 
 #import "MZFayeClient.h"
 #import "MZFayeMessage.h"
-#import <MF_Base64Additions.h>
+#import "MF_Base64Additions.h"
 
 NSString *const MZFayeClientBayeuxChannelHandshake = @"/meta/handshake";
 NSString *const MZFayeClientBayeuxChannelConnect = @"/meta/connect";
